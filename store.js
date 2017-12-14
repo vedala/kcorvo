@@ -10,10 +10,12 @@ const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
 const STRING_ONE_CHAR_BYTES = 2;
 
 class Store {
-  constructor(options={maxMemory: DEFAULT_MAX_MEMORY}) {
+  constructor(corvoEvictionPolicy, memoryTracker, options={maxMemory: DEFAULT_MAX_MEMORY}) {
     this.mainHash = {};
+    this.evictionPolicy = corvoEvictionPolicy;
     this.mainList = new CorvoLinkedList();
 
+    this.memoryTracker = memoryTracker;
     this.memoryTracker = new MemoryTracker(options.maxMemory);
   }
 
@@ -40,7 +42,7 @@ class Store {
       }
     }
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
   }
 
@@ -65,7 +67,7 @@ class Store {
       this.memoryTracker.nodeCreation(newNode);
     }
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
   }
 
@@ -80,7 +82,7 @@ class Store {
     this.mainHash[key] = newNode;
     this.mainList.append(newNode);
     this.memoryTracker.nodeCreation(newNode);
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
   }
 
@@ -121,7 +123,7 @@ class Store {
       throw new StoreError("StoreError: value at key not string type.");
     }
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return lengthAppendedValue;
   }
 
@@ -172,7 +174,7 @@ class Store {
     this.memoryTracker.stringUpdate(oldValue, accessedNode.val);
     this.touch(key);
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return parseInt(accessedNode.val, 10);
   }
 
@@ -197,7 +199,7 @@ class Store {
 
     this.touch(key);
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return parseInt(accessedNode.val, 10);
   }
 
@@ -286,16 +288,6 @@ class Store {
     });
 
     return numDeleted;
-  }
-
-  lruEvict() {
-    this.del(this.mainList.head.key);
-  }
-
-  lruCheckAndEvictToMaxMemory() {
-    while (this.memoryTracker.maxMemoryExceeded()) {
-      this.lruEvict();
-    }
   }
 
   lpush(key, ...vals) {
@@ -585,7 +577,7 @@ class Store {
       this.memoryTracker.listItemUpdate(oldValue, value);
     }
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
   }
 
@@ -631,7 +623,7 @@ class Store {
       returnValue = 1;
     }
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return returnValue;
   }
 
@@ -650,14 +642,14 @@ class Store {
       node.val[field] = value;
       this.memoryTracker.hashItemUpdate(oldVal, node.val[field]);
       this.touch(key);
-      this.lruCheckAndEvictToMaxMemory();
+      this.evictionPolicy.checkAndEvictToMaxMemory();
       return 0;
     } else {
       this.touch(key);
     }
     node.val[field] = value;
     this.memoryTracker.hashItemInsert(field, value);
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return 1;
   }
 
@@ -722,7 +714,7 @@ class Store {
       }
       node.val[field] = value;
     }
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
   }
 
@@ -866,7 +858,7 @@ class Store {
       returnValue = parseInt(incrBy, 10);;
     }
 
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return returnValue;
   }
 
@@ -1047,7 +1039,7 @@ class Store {
       const newMemory = this.memoryTracker.calculateStoreItemSize(nodeAtKey);
       this.memoryTracker.sortedSetElementInsert(oldMemory, newMemory);
     }
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return numElems;
   }
 
@@ -1106,7 +1098,7 @@ class Store {
     });
 
     this.memoryTracker.nodeCreation(newMainZsetNode);
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return Object.keys(unionHash).length;
   }
 
@@ -1140,7 +1132,7 @@ class Store {
     });
     const newMemory = this.memoryTracker.calculateStoreItemSize(nodeAtKey);
     this.memoryTracker.sortedSetElementInsert(oldMemory, newMemory);
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return countRemoved;
   }
 
@@ -1169,12 +1161,12 @@ class Store {
       throw new StoreError("StoreError: value at key is not type sorted set.");
     } else if (nodeAtKey === undefined) {
       this.zadd(key, increment, member);
-      this.lruCheckAndEvictToMaxMemory();
+      this.evictionPolicy.checkAndEvictToMaxMemory();
       return increment;
     } else {
       let newScore = this.zscore(key, member) || 0;
       newScore += increment;
-      this.lruCheckAndEvictToMaxMemory();
+      this.evictionPolicy.checkAndEvictToMaxMemory();
       return this.mainHash[key].val.setScore(member, newScore);
     }
   }
@@ -1343,7 +1335,7 @@ class Store {
       sortedSet.add(interHash[member], member);
     });
     this.memoryTracker.nodeCreation(newMainZsetNode);
-    this.lruCheckAndEvictToMaxMemory();
+    this.evictionPolicy.checkAndEvictToMaxMemory();
     return Object.keys(interHash).length;
   }
 

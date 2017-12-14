@@ -3,6 +3,8 @@ import Store from './store';
 import { Parser } from './parser';
 import ParserError from './parser_error';
 import StoreError from './store_error';
+import MemoryTracker from './memory_tracker';
+import CorvoEvictionPolicy from './corvo_eviction_policy';
 import FS from "fs";
 
 const DEFAULT_PORT = 6379;
@@ -41,12 +43,15 @@ const WRITE_COMMANDS = {
 };
 const DEF_OPTIONS = {
   aofWritePath: 'corvoAOF.aof',
-  aofPersistence: true
+  aofPersistence: true,
+  evictionPolicy: "lru",
 };
 
 class CorvoServer {
   constructor(options=DEF_OPTIONS) {
-    this.store = new Store();
+    this.corvoEvictionPolicy = new CorvoEvictionPolicy(options["evictionPolicy"]);
+    this.store = new Store(this.corvoEvictionPolicy);
+    this.memoryTracker = new MemoryTracker(options.maxMemory);
     this.storeCommandMap = {
       'GET': this.store.getString,
       'APPEND': this.store.appendString,
@@ -372,6 +377,14 @@ class CorvoServer {
         persistenceBool = persistenceBool === 'true';
 
         options['aofPersistence'] = persistenceBool;
+      } else if (token === '--evictionPolicy') {
+        const policy = args.shift();
+
+        if (policy !== 'lru') {
+          throw new Error("Invalid option value for evictionPolicy.");
+        }
+
+        options['evictionPolicy'] = policy;
       }
     };
 
