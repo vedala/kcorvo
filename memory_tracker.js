@@ -19,6 +19,9 @@ class MemoryTracker {
     this.memoryUsed += memory;
   }
 
+  stringCreate(key) {
+  }
+
   stringUpdate(oldVal, newVal) {
     this.memoryUsed -= oldVal.length * STRING_ONE_CHAR_BYTES;
     this.memoryUsed += newVal.length * STRING_ONE_CHAR_BYTES;

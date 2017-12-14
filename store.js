@@ -52,7 +52,7 @@ class Store {
 
     if (accessedHashValueNode.type === "string") {
       const oldValue = accessedHashValueNode.val;
-      accessedNode.val = value;
+      accessedHashValueNode.val = value;
       this.memoryTracker.stringUpdate(oldValue, value);
       this.evictionPolicy.touch(key);
     } else {
