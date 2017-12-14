@@ -8,8 +8,6 @@ import StoreError from './store_error';
 import CorvoEvictionPolicy from './corvo_eviction_policy';
 import HashValueNode from './hash_value_node';
 
-const STRING_ONE_CHAR_BYTES = 2;
-
 class Store {
   constructor(maxMemory, evictionPolicy) {
     this.mainHash = {};
@@ -24,19 +22,19 @@ class Store {
       this.mainHash[key] = new HashValueNode("string", value)
       const evictionPointer = this.evictionPolicy.append(key);
       this.mainHash[key].evictionPtr = evictionPointer;
-      // this.memoryTracker.nodeCreation(key);
+      this.memoryTracker.stringCreate(key);
     } else {
       if (accessedHashValueNode.type === "string") {
         const oldValue = accessedHashValueNode.val;
         accessedHashValueNode.val = value;
-        // this.memoryTracker.stringUpdate(oldValue, value);
-        this.touch(key);
+        this.memoryTracker.stringUpdate(oldValue, value);
+        this.evictionPolicy.touch(key);
       } else {
         this.del(key);
-        const newNode = new CorvoNode(key, value);
-        this.mainHash[key] = newNode;
-        this.mainList.append(newNode);
-        // this.memoryTracker.nodeCreation(newNode);
+        this.mainHash[key] = new HashValueNode("string", value)
+        const evictionPointer = this.evictionPolicy.append(key);
+        this.mainHash[key].evictionPtr = evictionPointer;
+        this.memoryTracker.stringCreate(key);
       }
     }
 
@@ -46,23 +44,23 @@ class Store {
 
   setStringX(key, value) {
     // only writes if already exists; otherwise, return null
-    const accessedNode = this.mainHash[key];
+    const accessedHashValueNode = this.mainHash[key];
 
-    if (accessedNode === undefined) {
+    if (accessedHashValueNode === undefined) {
       return null;
     }
 
-    if (accessedNode.type === "string") {
-      const oldValue = accessedNode.val;
+    if (accessedHashValueNode.type === "string") {
+      const oldValue = accessedHashValueNode.val;
       accessedNode.val = value;
       this.memoryTracker.stringUpdate(oldValue, value);
-      this.touch(key);
+      this.evictionPolicy.touch(key);
     } else {
       this.del(key);
-      const newNode = new CorvoNode(key, value);
-      this.mainHash[key] = newNode;
-      this.mainList.append(newNode);
-      this.memoryTracker.nodeCreation(newNode);
+      this.mainHash[key] = new HashValueNode("string", value)
+      const evictionPointer = this.evictionPolicy.append(key);
+      this.mainHash[key].evictionPtr = evictionPointer;
+      this.memoryTracker.stringCreate(key);
     }
 
     this.evictionPolicy.checkAndEvictToMaxMemory();
@@ -71,52 +69,51 @@ class Store {
 
   setStringNX(key, value) {
     // only writes if doesn't exist; otherwise return null
-    const accessedNode = this.mainHash[key];
+    const accessedHashValueNode = this.mainHash[key];
 
-    if (accessedNode !== undefined) {
+    if (accessedHashValueNode !== undefined) {
       return null;
     }
-    const newNode = new CorvoNode(key, value);
-    this.mainHash[key] = newNode;
-    this.mainList.append(newNode);
-    this.memoryTracker.nodeCreation(newNode);
+
+    this.mainHash[key] = new HashValueNode("string", value)
+    const evictionPointer = this.evictionPolicy.append(key);
+    this.mainHash[key].evictionPtr = evictionPointer;
+    this.memoryTracker.stringCreate(key);
+
     this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
   }
 
   getString(key) {
-    const accessedNode = this.mainHash[key];
-    if (accessedNode === undefined) {
+    const accessedHashValueNode = this.mainHash[key];
+    if (accessedHashValueNode === undefined) {
       return null;
-    } else if (accessedNode && accessedNode.type !== "string") {
-      this.touch(key);
+    } else if (accessedHashValueNode.type !== "string") {
+      this.evictionPolicy.touch(key);
       throw new StoreError("StoreError: value at key not a string.");
     }
 
-    const returnValue = accessedNode.val;
-    // this.touch(key);
-    return returnValue;
+    const strValue = accessedHashValueNode.val;
+    this.evictionPolicy.touch(key);
+    return strValue;
   }
 
   appendString(key, valueToAppend) {
-    const accessedNode = this.mainHash[key];
+    const accessedHashValueNode = this.mainHash[key];
     let lengthAppendedValue;
 
-    if (accessedNode === undefined) {
-      const newNode = new CorvoNode(key, valueToAppend);
-      this.mainHash[key] = newNode;
-      this.mainList.append(newNode);
-
-      this.memoryTracker.nodeCreation(newNode);
-
+    if (accessedHashValueNode === undefined) {
+      this.mainHash[key] = new HashValueNode("string", valueToAppend)
+      const evictionPointer = this.evictionPolicy.append(key);
+      this.mainHash[key].evictionPtr = evictionPointer;
+      this.memoryTracker.stringCreate(key);
       lengthAppendedValue = valueToAppend.length;
-    } else if (accessedNode.type === 'string') {
-      this.touch(key);
-      const oldValue = accessedNode.val;
-      accessedNode.val += valueToAppend;
-
-      this.memoryTracker.stringUpdate(oldValue, accessedNode.val);
-      lengthAppendedValue = accessedNode.val.length;
+    } else if (accessedHashValueNode.type === 'string') {
+      this.evictionPolicy.touch(key);
+      const oldValue = accessedHashValueNode.val;
+      accessedHashValueNode.val += valueToAppend;
+      this.memoryTracker.stringUpdate(oldValue, accessedHashValueNode.val);
+      lengthAppendedValue = accessedHashValueNode.val.length;
     } else {
       throw new StoreError("StoreError: value at key not string type.");
     }
@@ -125,6 +122,7 @@ class Store {
     return lengthAppendedValue;
   }
 
+/*
   touch(...keys) {
     let validKeys = 0;
     keys.forEach((key) => {
@@ -137,15 +135,17 @@ class Store {
     });
     return validKeys;
   }
+*/
 
   getStrLen(key) {
-    const accessedNode = this.mainHash[key];
-    if (accessedNode !== undefined && accessedNode.type === 'string') {
-      this.touch(key);
-      return accessedNode.val.length;
-    } else if (accessedNode) {
-      this.touch(key);
-      throw new StoreError("StoreError: value at key is not string type.")
+    const accessedHashValueNode = this.mainHash[key];
+    if (accessedHashValueNode !== undefined) {
+      this.evictionPolicy.touch(key);
+      if (accessedHashValueNode.type === 'string') {
+        return accessedHashValueNode.val.length;
+      } else {
+        throw new StoreError("StoreError: value at key is not string type.")
+      }
     } else {
       return 0;
     }
