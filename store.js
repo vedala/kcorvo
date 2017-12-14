@@ -26,11 +26,20 @@ class Store {
       this.mainList.append(newNode);
       this.memoryTracker.nodeCreation(newNode);
     } else {
-      const oldValue = accessedNode.val;
-      accessedNode.val = value;
-      this.memoryTracker.stringUpdate(oldValue, value);
-      this.touch(key);
+      if (accessedNode.type === "string") {
+        const oldValue = accessedNode.val;
+        accessedNode.val = value;
+        this.memoryTracker.stringUpdate(oldValue, value);
+        this.touch(key);
+      } else {
+        this.del(key);
+        const newNode = new CorvoNode(key, value);
+        this.mainHash[key] = newNode;
+        this.mainList.append(newNode);
+        this.memoryTracker.nodeCreation(newNode);
+      }
     }
+
     this.lruCheckAndEvictToMaxMemory();
     return "OK";
   }
@@ -42,10 +51,20 @@ class Store {
     if (accessedNode === undefined) {
       return null;
     }
-    const oldValue = accessedNode.val;
-    accessedNode.val = value;
-    this.memoryTracker.stringUpdate(oldValue, value);
-    this.touch(key);
+
+    if (accessedNode.type === "string") {
+      const oldValue = accessedNode.val;
+      accessedNode.val = value;
+      this.memoryTracker.stringUpdate(oldValue, value);
+      this.touch(key);
+    } else {
+      this.del(key);
+      const newNode = new CorvoNode(key, value);
+      this.mainHash[key] = newNode;
+      this.mainList.append(newNode);
+      this.memoryTracker.nodeCreation(newNode);
+    }
+
     this.lruCheckAndEvictToMaxMemory();
     return "OK";
   }

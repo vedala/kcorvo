@@ -220,6 +220,20 @@ describe("store", () => {
     expect(testStore.mainList.tail.val).toBe(value2);
   });
 
+  it("uses setString method to overwrite a key containing list type", () => {
+    const testStore = new Store();
+    const key = "key1";
+    const val1 = '1';
+    const val2 = '2';
+    const strValue1 = "this-is-the-value1";
+
+    testStore.lpush(key, val1, val2);
+
+    testStore.setString(key, strValue1);
+    expect(testStore.getString(key)).toBe(strValue1);
+    expect(testStore.mainList.head.type).toBe("string");
+  });
+
   it("uses setStringX to overwrite a single key/value in store and return OK", () => {
     const testStore = new Store();
     const key = "key";
@@ -240,6 +254,20 @@ describe("store", () => {
 
     expect(testStore.setStringX(key, value)).toBe(null);
     expect(testStore.getString(key)).toBe(null);
+  });
+
+  it("uses setStringX method to overwrite a key containing list type", () => {
+    const testStore = new Store();
+    const key = "key1";
+    const val1 = '1';
+    const val2 = '2';
+    const strValue1 = "this-is-the-value1";
+
+    testStore.lpush(key, val1, val2);
+
+    testStore.setStringX(key, strValue1);
+    expect(testStore.getString(key)).toBe(strValue1);
+    expect(testStore.mainList.head.type).toBe("string");
   });
 
   it("uses setStringNX method to create new key/value in store and return OK", () => {
@@ -263,6 +291,21 @@ describe("store", () => {
     expect(testStore.getString(key)).toBe(value1);
     expect(testStore.setStringNX(key, value2)).toBe(null);
     expect(testStore.getString(key)).toBe(value1);
+  });
+
+  it("uses setStringNX method to overwrite a key containing list type", () => {
+    const testStore = new Store();
+    const key = "key1";
+    const val1 = '1';
+    const val2 = '2';
+    const strValue1 = "this-is-the-value1";
+
+    testStore.lpush(key, val1, val2);
+
+    testStore.setStringNX(key, strValue1);
+    expect(testStore.mainList.head.type).toBe("list");
+    expect(testStore.mainList.head.val.head.val).toBe("2");
+    expect(testStore.mainList.head.val.head.nextNode.val).toBe("1");
   });
 
   it("uses getString method to retrieve corresponding value for a key", () => {
