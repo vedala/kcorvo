@@ -4,21 +4,25 @@ import CorvoNode from "../corvo_node.js";
 import MemoryTracker from "../memory_tracker";
 import CorvoSkipList from "../corvo_skiplist.js";
 import CorvoSkipListNode from "../corvo_skiplist_node.js";
+import HashValueNode from "../hash_value_node.js";
+import CorvoLruEviction from '../corvo_lru_eviction.js';
+import CorvoListNode from '../data_types/corvo_list_node.js';
+
+const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
+const DEFAULT_EVICTION_POLICY = "lru";
 
 describe("corvo node", () => {
   it("uses setString method to set one key/value in store and return OK", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const value = "this-is-the-value";
     const returnVal = testStore.setString(key, value);
     expect(testStore.mainHash[key].val).toBe(value);
-    expect(testStore.mainList.head.val).toBe(value);
-    expect(testStore.mainList.tail.val).toBe(value);
     expect(returnVal).toBe("OK");
   });
 
   it("uses setString method to overwrite one value in store", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const value1 = "this-is-the-value1";
     const value2 = "this-is-the-value2";
@@ -28,11 +32,10 @@ describe("corvo node", () => {
 
     testStore.setString(key, value2);
     expect(testStore.getString(key)).toBe(value2);
-    expect(testStore.mainList.head).toBe(testStore.mainList.tail);
   });
 
   it("uses setString method to set two key/value items in store", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key1 = "key1";
     const value1 = "this-is-the-value-1";
     const key2 = "key2";
@@ -41,18 +44,18 @@ describe("corvo node", () => {
     testStore.setString(key2, value2);
     expect(testStore.mainHash[key1].val).toBe(value1);
     expect(testStore.mainHash[key2].val).toBe(value2);
-    expect(testStore.mainList.head.val).toBe(value1);
-    expect(testStore.mainList.tail.val).toBe(value2);
   });
 
   it("uses setString method to overwrite a key containing list type", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const val1 = '1';
     const val2 = '2';
     const strValue1 = "this-is-the-value1";
 
-    testStore.lpush(key, val1, val2);
+    const listNode = new CorvoListNode(val1);
+    testStore.mainHash[key] = new HashValueNode("list", listNode);
+    testStore.evictionPolicy.policyImplementation.mainList.append(new CorvoNode(key, listNode, "list"))
 
     testStore.setString(key, strValue1);
     expect(testStore.getString(key)).toBe(strValue1);
@@ -60,7 +63,7 @@ describe("corvo node", () => {
   });
 
   it("uses setStringX to overwrite a single key/value in store and return OK", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key";
     const value1 = "this-is-the-value1";
     const value2 = "this-is-the-value2";
@@ -73,7 +76,7 @@ describe("corvo node", () => {
   });
 
   it("can't use setStringX method to create new key/value in store", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key";
     const value = "this-is-the-value";
 
@@ -82,7 +85,7 @@ describe("corvo node", () => {
   });
 
   it("uses setStringX method to overwrite a key containing list type", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const val1 = '1';
     const val2 = '2';
@@ -96,7 +99,7 @@ describe("corvo node", () => {
   });
 
   it("uses setStringNX method to create new key/value in store and return OK", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key";
     const value = "this-is-the-value";
 
@@ -107,7 +110,7 @@ describe("corvo node", () => {
   });
 
   it("can't use setStringNX method to overwrite key/value in store", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key";
     const value1 = "this-is-the-value1";
     const value2 = "this-is-the-value2";
@@ -119,7 +122,7 @@ describe("corvo node", () => {
   });
 
   it("uses setStringNX method to overwrite a key containing list type", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const val1 = '1';
     const val2 = '2';
@@ -134,7 +137,7 @@ describe("corvo node", () => {
   });
 
   it("uses getString method to retrieve corresponding value for a key", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key1 = "key1";
     const value1 = "this-is-the-value-1";
 
@@ -144,7 +147,7 @@ describe("corvo node", () => {
   });
 
   it("appends string value to value in memory with appendString and returns length of newly updated value", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const valueA = "Hello, ";
     const valueB = "World!";
@@ -158,7 +161,7 @@ describe("corvo node", () => {
   });
 
   it("appends string value to a non-existent key with appendString and returns length of newly updated value", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const valueA = "Hello";
     const result = 5;
@@ -169,7 +172,7 @@ describe("corvo node", () => {
   });
 
   it("uses getStrLen to return number representation of string length", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const value = "123456789";
 
@@ -179,7 +182,7 @@ describe("corvo node", () => {
   });
 
   it("uses getStrLen to return 0 if key does not exist", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key1";
     const value = "123456789";
 
@@ -189,7 +192,7 @@ describe("corvo node", () => {
   });
 
   it("uses strIncr to increment number stored as string and verify returns the incremented number", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = 'key';
     const value = '1';
 
@@ -200,7 +203,7 @@ describe("corvo node", () => {
   });
 
   it("uses strIncr to create a new key/value of 0 and then increment it", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = 'key';
 
     testStore.strIncr(key);
@@ -208,7 +211,7 @@ describe("corvo node", () => {
   });
 
   it("it throws error if strIncr used on non-number string", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = 'key';
     const value = 'Aw heck';
 
@@ -217,7 +220,7 @@ describe("corvo node", () => {
   });
 
   it("uses strDecr to decrement number stored as string and verify return value is the decremented value", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = 'key';
     const value = '9';
 
@@ -228,7 +231,7 @@ describe("corvo node", () => {
   });
 
   it("uses strDecr to create a new key/value of 0 and then decrement it", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = 'key';
 
     testStore.strDecr(key);
@@ -236,7 +239,7 @@ describe("corvo node", () => {
   });
 
   it("throws error if strDecr used on non-number string", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = 'key';
     const value = 'Aw heck';
 

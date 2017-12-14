@@ -156,24 +156,22 @@ class Store {
       return ((parseInt(strInput)).toString() === strInput);
     }
 
-    let accessedNode = this.mainHash[key];
+    let accessedHashValueNode = this.mainHash[key];
 
-    if (accessedNode === undefined) {
+    if (accessedHashValueNode === undefined) {
       this.setString(key, '0');
-      accessedNode = this.mainHash[key];
-    } else if (!isNumberString(accessedNode.val)) {
+      accessedHashValueNode = this.mainHash[key];
+    } else if (!isNumberString(accessedHashValueNode.val)) {
       throw new StoreError("StoreError: value at key is not a number string.");
     }
 
-    const oldValue = accessedNode.val;
-
-    accessedNode.val = (parseInt(accessedNode.val, 10) + 1).toString();
-
-    this.memoryTracker.stringUpdate(oldValue, accessedNode.val);
-    this.touch(key);
-
+    const oldValue = accessedHashValueNode.val;
+    accessedHashValueNode.val = (parseInt(accessedHashValueNode.val, 10) + 1).toString();
+    this.memoryTracker.stringUpdate(oldValue, accessedHashValueNode.val);
+    this.evictionPolicy.touch(key);
     this.evictionPolicy.checkAndEvictToMaxMemory();
-    return parseInt(accessedNode.val, 10);
+
+    return parseInt(accessedHashValueNode.val, 10);
   }
 
   strDecr(key) {
@@ -181,24 +179,22 @@ class Store {
       return ((parseInt(strInput)).toString() === strInput);
     }
 
-    let accessedNode = this.mainHash[key];
+    let accessedHashValueNode = this.mainHash[key];
 
-    if (accessedNode === undefined) {
+    if (accessedHashValueNode === undefined) {
       this.setString(key, '0');
-      accessedNode = this.mainHash[key];
-    } else if (!isNumberString(accessedNode.val)) {
+      accessedHashValueNode = this.mainHash[key];
+    } else if (!isNumberString(accessedHashValueNode.val)) {
       throw new StoreError("StoreError: value at key is not a number string.");
     }
 
-    const oldValue = accessedNode.val;
-    accessedNode.val = (parseInt(accessedNode.val, 10) - 1).toString();
-
-    this.memoryTracker.stringUpdate(oldValue, accessedNode.val);
-
-    this.touch(key);
-
+    const oldValue = accessedHashValueNode.val;
+    accessedHashValueNode.val = (parseInt(accessedHashValueNode.val, 10) - 1).toString();
+    this.memoryTracker.stringUpdate(oldValue, accessedHashValueNode.val);
+    this.evictionPolicy.touch(key);
     this.evictionPolicy.checkAndEvictToMaxMemory();
-    return parseInt(accessedNode.val, 10);
+
+    return parseInt(accessedHashValueNode.val, 10);
   }
 
   exists(...keys) {
