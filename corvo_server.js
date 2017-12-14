@@ -9,6 +9,9 @@ import FS from "fs";
 
 const DEFAULT_PORT = 6379;
 const DEFAULT_HOST = '127.0.0.1';
+const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
+const DEFAULT_EVICTION_POLICY = "lru";
+
 const WRITE_COMMANDS = {
   SET: true, // always write to AOF
   APPEND: true, // always write to AOF when returning integer
@@ -42,16 +45,16 @@ const WRITE_COMMANDS = {
   SUNIONSTORE: true,
 };
 const DEF_OPTIONS = {
+  maxMemory: DEFAULT_MAX_MEMORY,
   aofWritePath: 'corvoAOF.aof',
   aofPersistence: true,
-  evictionPolicy: "lru",
+  evictionPolicy: DEFAULT_EVICTION_POLICY,
 };
 
 class CorvoServer {
   constructor(options=DEF_OPTIONS) {
-    this.corvoEvictionPolicy = new CorvoEvictionPolicy(options["evictionPolicy"]);
-    this.store = new Store(this.corvoEvictionPolicy);
-    this.memoryTracker = new MemoryTracker(options.maxMemory);
+    this.store = new Store(options["maxMemory"] || DEFAULT_MAX_MEMORY,
+                           options["evictionPolicy"] || DEFAULT_EVICTION_POLICY);
     this.storeCommandMap = {
       'GET': this.store.getString,
       'APPEND': this.store.appendString,

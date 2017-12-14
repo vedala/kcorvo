@@ -1,5 +1,9 @@
+import CorvoLinkedList from './corvo_linked_list';
+
 class CorvoLruEviction {
-  constructor() {
+  constructor(memoryTracker) {
+    this.memoryTracker = memoryTracker;
+    this.mainList = new CorvoLinkedList();
   }
 
   lruEvict() {
@@ -14,3 +18,7 @@ class CorvoLruEviction {
 }
 
 export default CorvoLruEviction;
+
+/*
+      const newNode = new CorvoNode(key, value);
+*/

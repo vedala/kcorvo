@@ -5,40 +5,38 @@ import MemoryTracker from './memory_tracker';
 import CorvoSortedSet from './data_types/corvo_sorted_set.js';
 import CorvoSet from './data_types/corvo_set.js';
 import StoreError from './store_error';
+import CorvoEvictionPolicy from './corvo_eviction_policy';
+import HashValueNode from './hash_value_node';
 
-const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
 const STRING_ONE_CHAR_BYTES = 2;
 
 class Store {
-  constructor(corvoEvictionPolicy, memoryTracker, options={maxMemory: DEFAULT_MAX_MEMORY}) {
+  constructor(maxMemory, evictionPolicy) {
     this.mainHash = {};
-    this.evictionPolicy = corvoEvictionPolicy;
-    this.mainList = new CorvoLinkedList();
-
-    this.memoryTracker = memoryTracker;
-    this.memoryTracker = new MemoryTracker(options.maxMemory);
+    this.memoryTracker = new MemoryTracker(maxMemory);
+    this.evictionPolicy = new CorvoEvictionPolicy(evictionPolicy, this.memoryTracker);
   }
 
   setString(key, value) {
-    const accessedNode = this.mainHash[key];
+    const accessedHashValueNode = this.mainHash[key];
 
-    if (accessedNode === undefined) {
-      const newNode = new CorvoNode(key, value);
-      this.mainHash[key] = newNode;
-      this.mainList.append(newNode);
-      this.memoryTracker.nodeCreation(newNode);
+    if (accessedHashValueNode === undefined) {
+      this.mainHash[key] = new HashValueNode("string", value)
+      const evictionPointer = this.evictionPolicy.append(key);
+      this.mainHash[key].evictionPtr = evictionPointer;
+      // this.memoryTracker.nodeCreation(key);
     } else {
-      if (accessedNode.type === "string") {
-        const oldValue = accessedNode.val;
-        accessedNode.val = value;
-        this.memoryTracker.stringUpdate(oldValue, value);
+      if (accessedHashValueNode.type === "string") {
+        const oldValue = accessedHashValueNode.val;
+        accessedHashValueNode.val = value;
+        // this.memoryTracker.stringUpdate(oldValue, value);
         this.touch(key);
       } else {
         this.del(key);
         const newNode = new CorvoNode(key, value);
         this.mainHash[key] = newNode;
         this.mainList.append(newNode);
-        this.memoryTracker.nodeCreation(newNode);
+        // this.memoryTracker.nodeCreation(newNode);
       }
     }
 
@@ -96,7 +94,7 @@ class Store {
     }
 
     const returnValue = accessedNode.val;
-    this.touch(key);
+    // this.touch(key);
     return returnValue;
   }
 
