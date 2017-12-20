@@ -19,16 +19,26 @@ class MemoryTracker {
     this.memoryUsed += memory;
   }
 
-  stringCreate(key) {
+  calcHashValueNodeSize(key, value) {
+    // 3 references
+    // "string" literal for type
+    // value
+    const refBytes = REFERENCE_SIZE_BYTES * 3;
+    const keyBytes = STRING_ONE_CHAR_BYTES * key.length;
+    const valBytes = STRING_ONE_CHAR_BYTES * value.length;
+    return refBytes + keyBytes + valBytes;
+  }
+
+  stringCreate(key, value) {
+    // main hash key, pointer to hash value node
+    // hash value node
+    const memory = calculateMainHashKeySize(key) + calcHashValueNodeSize(key, value);
+    this.memoryUsed += memory;
   }
 
   stringUpdate(oldVal, newVal) {
     this.memoryUsed -= oldVal.length * STRING_ONE_CHAR_BYTES;
     this.memoryUsed += newVal.length * STRING_ONE_CHAR_BYTES;
-  }
-
-  stringDelete(key, val) {
-    this.memoryUsed -= this.calculateStoreItemSize(key, val, "string");
   }
 
   listItemInsert(val) {
@@ -156,7 +166,7 @@ class MemoryTracker {
         returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateListSize(val);
         break;
       case "string":
-        returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type);
+        returnVal = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, val);
         break;
       case "hash":
         returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateHashSize(val);
@@ -169,14 +179,6 @@ class MemoryTracker {
         break;
     }
     return returnVal;
-  }
-
-  updateMemoryUsed(oldVal, newVal) {
-    this.memoryUsed += (newVal - oldVal);
-  }
-
-  decrementMemoryUsed(key, val, type) {
-    this.memoryUsed -= this.calculateStoreItemSize(key, val, type);
   }
 
   maxMemoryExceeded() {
