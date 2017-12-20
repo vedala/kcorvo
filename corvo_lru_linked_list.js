@@ -18,6 +18,18 @@ class CorvoLruLinkedList {
 
     this.tail = lruNode;
     this.length += 1;
+
+    return lruNode;
+  }
+
+  removeHead() {
+    if (this.head) {
+      const nextNode = this.head.nextNode;
+      this.head = nextNode;
+      if (nextNode) {
+        nextNode.prevNode = null;
+      }
+    }
   }
 
   remove(inputNode) {
@@ -40,6 +52,22 @@ class CorvoLruLinkedList {
     this.length -= 1;
   }
 
+  touch(nodePtr) {
+    this.remove(nodePtr);
+    this.appendNode(nodePtr);
+  }
+
+  appendNode(nodePtr) {
+    if (this.tail === null) {
+      this.head = nodePtr;
+    } else {
+      this.tail.nextNode = nodePtr;
+      nodePtr.prevNode = this.tail;
+    }
+
+    this.tail = nodePtr;
+    this.length += 1;
+  }
 }
 
 export default CorvoLruLinkedList;

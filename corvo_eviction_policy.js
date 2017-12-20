@@ -8,9 +8,9 @@ class CorvoEvictionPolicy {
     }
   }
 
-  checkAndEvictToMaxMemory() {
+  checkAndEvictToMaxMemory(mainHash) {
     if (this.policyImplementation) {
-      this.policyImplementation.checkAndEvictToMaxMemory();
+      this.policyImplementation.checkAndEvictToMaxMemory(mainHash);
     }
   }
 
@@ -22,11 +22,14 @@ class CorvoEvictionPolicy {
 
   add(key) {
     if (this.policyImplementation) {
-      this.policyImplementation.add(key);
+      return this.policyImplementation.add(key);
     }
   }
 
-  touch() {
+  touch(nodePtr) {
+    if (this.policyImplementation) {
+      this.policyImplementation.touch(nodePtr);
+    }
   }
 }
 

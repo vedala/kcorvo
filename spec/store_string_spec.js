@@ -246,4 +246,15 @@ describe("corvo node", () => {
     testStore.setString(key, value);
     expect(() => { testStore.strDecr(key) }).toThrow(new Error("StoreError: value at key is not a number string."));
   });
+
+  it("returns null when getString called for non-existent key", () => {
+    const testStore = new Store();
+    const key1 = "key1";
+    const value1 = "this-is-the-value-1";
+
+    testStore.setString(key1, value1);
+    const valueFromStore = testStore.getString("non-existent-key");
+    expect(valueFromStore).toBe(null);
+  });
+
 });

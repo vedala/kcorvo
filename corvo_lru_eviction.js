@@ -6,21 +6,29 @@ class CorvoLruEviction {
     this.mainList = new CorvoLruLinkedList();
   }
 
-  lruEvict() {
-    this.del(this.mainList.head.key);
+  lruEvict(mainHash) {
+    const key = this.mainList.head.key;
+console.log("mainHash", mainHash);
+    this.removeHead();
+    delete mainHash[key];
   }
 
-  checkAndEvictToMaxMemory() {
+  checkAndEvictToMaxMemory(mainHash) {
     while (this.memoryTracker.maxMemoryExceeded()) {
-      this.lruEvict();
+      this.lruEvict(mainHash);
     }
   }
 
-  remove(key) {
+  removeHead() {
+    this.mainList.removeHead();
   }
 
   add(key) {
-    this.mainList.add(key);
+    return this.mainList.add(key);
+  }
+
+  touch(nodePtr) {
+    this.mainList.touch(nodePtr);
   }
 }
 
