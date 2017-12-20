@@ -106,19 +106,22 @@ describe("lru", () => {
 
     testStore.setString(key1, value1);
     testStore.setString(key2, value2);
-    testStore.lruEvict();
-    expect(testStore.mainList.tail.val).toBe(value2);
+    testStore.evictionPolicy.policyImplementation.lruEvict(testStore.mainHash);
+    const lruMainList = testStore.evictionPolicy.policyImplementation.mainList;
+    expect(lruMainList.tail.key).toBe(key2);
     expect(testStore.mainHash[key1]).toBe(undefined);
   });
 
   it("uses lruCheckAndEvictToMaxMemory to bring total store memory below threshold", () => {
-    const testStore = new Store({maxMemory: 1361});
+    const testStore = new Store(1085, DEFAULT_EVICTION_POLICY);
     for (var i = 0; i < 10; i++) {
       testStore.setString("key" + i, "abcdefghijklmnopqrstuvwxyzabc" + i);
     }
-    expect(testStore.mainList.head.key).toBe("key0");
+
+    const lruMainList = testStore.evictionPolicy.policyImplementation.mainList;
+    expect(lruMainList.head.key).toBe("key0");
     testStore.setString("key-xyz", "xyz");
-    expect(testStore.mainList.head.key).toBe("key1");
+    expect(lruMainList.head.key).toBe("key1");
   });
 
 });

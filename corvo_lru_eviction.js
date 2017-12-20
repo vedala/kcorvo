@@ -8,8 +8,8 @@ class CorvoLruEviction {
 
   lruEvict(mainHash) {
     const key = this.mainList.head.key;
-console.log("mainHash", mainHash);
-    this.removeHead();
+    this.memoryTracker.deleteStoreItem(key, mainHash[key].val, mainHash[key].type);
+    this.mainList.removeHead();
     delete mainHash[key];
   }
 
@@ -17,10 +17,6 @@ console.log("mainHash", mainHash);
     while (this.memoryTracker.maxMemoryExceeded()) {
       this.lruEvict(mainHash);
     }
-  }
-
-  removeHead() {
-    this.mainList.removeHead();
   }
 
   add(key) {

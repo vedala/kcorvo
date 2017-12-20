@@ -28,6 +28,8 @@ class CorvoLruLinkedList {
       this.head = nextNode;
       if (nextNode) {
         nextNode.prevNode = null;
+      } else {
+        this.tail = null;
       }
     }
   }
