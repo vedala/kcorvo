@@ -22,7 +22,7 @@ class Store {
       this.mainHash[key] = new HashValueNode("string", value)
       const evictionPointer = this.evictionPolicy.append(key);
       this.mainHash[key].evictionPtr = evictionPointer;
-      this.memoryTracker.stringCreate(key);
+      this.memoryTracker.stringCreate(key, value);
     } else {
       if (accessedHashValueNode.type === "string") {
         const oldValue = accessedHashValueNode.val;
@@ -34,7 +34,7 @@ class Store {
         this.mainHash[key] = new HashValueNode("string", value)
         const evictionPointer = this.evictionPolicy.append(key);
         this.mainHash[key].evictionPtr = evictionPointer;
-        this.memoryTracker.stringCreate(key);
+        this.memoryTracker.stringCreate(key, value);
       }
     }
 
@@ -60,7 +60,7 @@ class Store {
       this.mainHash[key] = new HashValueNode("string", value)
       const evictionPointer = this.evictionPolicy.append(key);
       this.mainHash[key].evictionPtr = evictionPointer;
-      this.memoryTracker.stringCreate(key);
+      this.memoryTracker.stringCreate(key, value);
     }
 
     this.evictionPolicy.checkAndEvictToMaxMemory();
@@ -78,7 +78,7 @@ class Store {
     this.mainHash[key] = new HashValueNode("string", value)
     const evictionPointer = this.evictionPolicy.append(key);
     this.mainHash[key].evictionPtr = evictionPointer;
-    this.memoryTracker.stringCreate(key);
+    this.memoryTracker.stringCreate(key, value);
 
     this.evictionPolicy.checkAndEvictToMaxMemory();
     return "OK";
@@ -106,7 +106,7 @@ class Store {
       this.mainHash[key] = new HashValueNode("string", valueToAppend)
       const evictionPointer = this.evictionPolicy.append(key);
       this.mainHash[key].evictionPtr = evictionPointer;
-      this.memoryTracker.stringCreate(key);
+      this.memoryTracker.stringCreate(key, valueToAppend);
       lengthAppendedValue = valueToAppend.length;
     } else if (accessedHashValueNode.type === 'string') {
       this.evictionPolicy.touch(key);

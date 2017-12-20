@@ -32,7 +32,7 @@ class MemoryTracker {
   stringCreate(key, value) {
     // main hash key, pointer to hash value node
     // hash value node
-    const memory = calculateMainHashKeySize(key) + calcHashValueNodeSize(key, value);
+    const memory = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, value);
     this.memoryUsed += memory;
   }
 
