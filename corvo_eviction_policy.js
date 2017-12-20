@@ -9,13 +9,21 @@ class CorvoEvictionPolicy {
   }
 
   checkAndEvictToMaxMemory() {
-    this.policyImplementation.checkAndEvictToMaxMemory();
+    if (this.policyImplementation) {
+      this.policyImplementation.checkAndEvictToMaxMemory();
+    }
   }
 
-  remove() {
+  remove(key) {
+    if (this.policyImplementation) {
+      this.policyImplementation.remove(key);
+    }
   }
 
-  append() {
+  add(key) {
+    if (this.policyImplementation) {
+      this.policyImplementation.add(key);
+    }
   }
 
   touch() {

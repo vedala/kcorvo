@@ -1,7 +1,7 @@
-class CorvoNode {
-  constructor(key, val, type="string", prevNode=null, nextNode=null) {
-    this._prevNode = prevNode;
-    this._nextNode = nextNode;
+class CorvoLruNode {
+  constructor(key) {
+    this._prevNode = null;
+    this._nextNode = null;
     this.key = key;
   }
 
@@ -22,4 +22,4 @@ class CorvoNode {
   }
 }
 
-export default CorvoNode;
+export default CorvoLruNode;

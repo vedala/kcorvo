@@ -20,7 +20,7 @@ class Store {
 
     if (accessedHashValueNode === undefined) {
       this.mainHash[key] = new HashValueNode("string", value)
-      const evictionPointer = this.evictionPolicy.append(key);
+      const evictionPointer = this.evictionPolicy.add(key);
       this.mainHash[key].evictionPtr = evictionPointer;
       this.memoryTracker.stringCreate(key, value);
     } else {
@@ -32,7 +32,7 @@ class Store {
       } else {
         this.del(key);
         this.mainHash[key] = new HashValueNode("string", value)
-        const evictionPointer = this.evictionPolicy.append(key);
+        const evictionPointer = this.evictionPolicy.add(key);
         this.mainHash[key].evictionPtr = evictionPointer;
         this.memoryTracker.stringCreate(key, value);
       }
@@ -58,7 +58,7 @@ class Store {
     } else {
       this.del(key);
       this.mainHash[key] = new HashValueNode("string", value)
-      const evictionPointer = this.evictionPolicy.append(key);
+      const evictionPointer = this.evictionPolicy.add(key);
       this.mainHash[key].evictionPtr = evictionPointer;
       this.memoryTracker.stringCreate(key, value);
     }
@@ -76,7 +76,7 @@ class Store {
     }
 
     this.mainHash[key] = new HashValueNode("string", value)
-    const evictionPointer = this.evictionPolicy.append(key);
+    const evictionPointer = this.evictionPolicy.add(key);
     this.mainHash[key].evictionPtr = evictionPointer;
     this.memoryTracker.stringCreate(key, value);
 
@@ -104,7 +104,7 @@ class Store {
 
     if (accessedHashValueNode === undefined) {
       this.mainHash[key] = new HashValueNode("string", valueToAppend)
-      const evictionPointer = this.evictionPolicy.append(key);
+      const evictionPointer = this.evictionPolicy.add(key);
       this.mainHash[key].evictionPtr = evictionPointer;
       this.memoryTracker.stringCreate(key, valueToAppend);
       lengthAppendedValue = valueToAppend.length;
@@ -276,7 +276,7 @@ class Store {
         const type = node.type;
         this.memoryTracker.deleteStoreItem(node);
         delete this.mainHash[key];
-        this.mainList.remove(node);
+        this.evictionPolicy.remove(key);
         numDeleted += 1;
       }
     });
