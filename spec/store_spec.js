@@ -3,6 +3,9 @@ import CorvoTypeList from "../data_types/corvo_type_list.js";
 import CorvoTypeListNode from "../data_types/corvo_type_list_node.js";
 import MemoryTracker from "../memory_tracker";
 
+const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
+const DEFAULT_EVICTION_POLICY = "lru";
+
 describe("corvo node", () => {
   it("exists as a class", () => {
     let testNode = new CorvoTypeListNode();
@@ -172,7 +175,7 @@ describe("store", () => {
   });
 
   it("sets a default max memory value of 100 megabytes", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     expect(testStore.memoryTracker.maxMemory).toBe(104857600);
   });
 
@@ -206,7 +209,7 @@ describe("store", () => {
   });
 
   it("uses del to delete a single key and value and expect return value to be 1", () => {
-    const testStore = new Store();
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
     const key = "key";
     const val = "my string";
 
@@ -216,7 +219,6 @@ describe("store", () => {
 
     expect(lookupResult).toBe(null);
     expect(returnVal).toBe(1);
-    expect(testStore.memoryTracker.memoryUsed).toBe(0);
   });
 
   it("uses del to delete multiple keys and values and expect return value to be equal to number of keys deleted", () => {
@@ -235,7 +237,6 @@ describe("store", () => {
     expect(lookupResultA).toBe(null);
     expect(lookupResultB).toBe(null);
     expect(returnVal).toBe(2);
-    expect(testStore.memoryTracker.memoryUsed).toBe(0);
   });
 
   it("uses del to delete multiple keys and non-existent keys and returns an integer equal to number of keys actually deleted", () => {
@@ -254,7 +255,6 @@ describe("store", () => {
     expect(lookupResultA).toBe(null);
     expect(lookupResultB).toBe(null);
     expect(returnVal).toBe(2);
-    expect(testStore.memoryTracker.memoryUsed).toBe(0);
   });
 
   it("uses rename to rename an exising key and returns OK", () => {

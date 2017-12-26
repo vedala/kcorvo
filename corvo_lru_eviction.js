@@ -23,6 +23,12 @@ class CorvoLruEviction {
     return this.mainList.add(key);
   }
 
+  remove(node, val, type) {
+    const key = node.key;
+    this.memoryTracker.deleteStoreItem(key, val, type);
+    this.mainList.remove(node);
+  }
+
   touch(nodePtr) {
     this.mainList.touch(nodePtr);
   }

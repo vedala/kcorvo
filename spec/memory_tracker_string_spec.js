@@ -201,4 +201,57 @@ describe("MemoryTracker", () => {
 
     expect(testTracker.maxMemoryExceeded()).toBe(false);
   });
+
+  it("uses del to delete a single key and value and expect return value to be 1", () => {
+    const testStore = new Store(DEFAULT_MAX_MEMORY, DEFAULT_EVICTION_POLICY);
+    const key = "key";
+    const val = "my string";
+
+    testStore.setString(key, val);
+    const returnVal = testStore.del(key);
+    const lookupResult = testStore.getString(key);
+
+    expect(lookupResult).toBe(null);
+    expect(returnVal).toBe(1);
+    expect(testStore.memoryTracker.memoryUsed).toBe(0);
+  });
+
+  it("uses del to delete multiple keys and values and expect return value to be equal to number of keys deleted", () => {
+    const testStore = new Store();
+    const keyA = "key";
+    const valA = "my string";
+    const keyB = "keyB";
+    const valB = "my string";
+
+    testStore.setString(keyA, valA);
+    testStore.setString(keyB, valB);
+    const returnVal = testStore.del(keyA, keyB);
+    const lookupResultA = testStore.getString(keyA);
+    const lookupResultB = testStore.getString(keyB);
+
+    expect(lookupResultA).toBe(null);
+    expect(lookupResultB).toBe(null);
+    expect(returnVal).toBe(2);
+    expect(testStore.memoryTracker.memoryUsed).toBe(0);
+  });
+
+  it("uses del to delete multiple keys and non-existent keys and returns an integer equal to number of keys actually deleted", () => {
+    const testStore = new Store();
+    const keyA = "key";
+    const valA = "my string";
+    const keyB = "keyB";
+    const valB = "my string";
+
+    testStore.setString(keyA, valA);
+    testStore.setString(keyB, valB);
+    const returnVal = testStore.del(keyA, keyB, "keyC", "keyD");
+    const lookupResultA = testStore.getString(keyA);
+    const lookupResultB = testStore.getString(keyB);
+
+    expect(lookupResultA).toBe(null);
+    expect(lookupResultB).toBe(null);
+    expect(returnVal).toBe(2);
+    expect(testStore.memoryTracker.memoryUsed).toBe(0);
+  });
+
 });

@@ -268,9 +268,10 @@ class Store {
       if (node !== undefined) {
         const val = node.val;
         const type = node.type;
+        const evictionPtr = node.evictionPtr;
         this.memoryTracker.deleteStoreItem(node);
         delete this.mainHash[key];
-        this.evictionPolicy.remove(key);
+        this.evictionPolicy.remove(evictionPtr, val, type);
         numDeleted += 1;
       }
     });
