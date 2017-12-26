@@ -1,6 +1,5 @@
-import CorvoLinkedList from './corvo_linked_list';
-import CorvoNode from './corvo_node';
-import CorvoListNode from './data_types/corvo_list_node';
+import CorvoTypeList from './data_types/corvo_type_list';
+import CorvoTypeListNode from './data_types/corvo_type_list_node';
 import MemoryTracker from './memory_tracker';
 import StoreError from './store_error';
 import CorvoEvictionPolicy from './corvo_eviction_policy';
@@ -284,9 +283,8 @@ class Store {
     if (nodeAtKey && nodeAtKey.type === "list") {
       this.touch(key);
       vals.forEach((val) => {
-        const newListNode = new CorvoListNode(val);
+        const newListNode = new CorvoTypeListNode(val) 
         nodeAtKey.val.prepend(newListNode);
-
         this.memoryTracker.listItemInsert(newListNode.val);
       });
       return nodeAtKey.val.length;
@@ -294,19 +292,18 @@ class Store {
       this.touch(key);
       throw new StoreError("StoreError: value at key not a list.");
     } else {
-      const newMainListNode = this.createMainNodeForListType(key);
-
-      this.mainHash[key] = newMainListNode;
-      this.mainList.append(newMainListNode);
+      const newList = new CorvoTypeList();
+      const evictionPointer = this.evictionPolicy.add(key);
+      this.mainHash[key] = new HashValueNode("list", newList);
+      this.mainHash[key].evictionPointer = evictionPointer;
 
       vals.forEach((val) => {
-        const newListNode = new CorvoListNode(val);
-
-        newMainListNode.val.prepend(newListNode);
+        const newListNode = new CorvoTypeListNode(val) 
+        newList.prepend(newListNode);
       });
 
-      this.memoryTracker.nodeCreation(newMainListNode);
-      return newMainListNode.val.length;
+      this.memoryTracker.listCreate(key, newList);
+      return newList.length;
     }
   }
 
@@ -315,9 +312,8 @@ class Store {
     if (nodeAtKey && nodeAtKey.type === "list") {
       this.touch(key);
       vals.forEach((val) => {
-        const newListNode = new CorvoListNode(val);
+        const newListNode = new CorvoTypeListNode(val);
         nodeAtKey.val.append(newListNode);
-
         this.memoryTracker.listItemInsert(newListNode.val);
       });
       return nodeAtKey.val.length;
@@ -325,19 +321,18 @@ class Store {
       this.touch(key);
       throw new StoreError("StoreError: value at key not a list.");
     } else {
-      const newMainListNode = this.createMainNodeForListType(key);
-
-      this.mainHash[key] = newMainListNode;
-      this.mainList.append(newMainListNode);
+      const newList = new CorvoTypeList();
+      const evictionPointer = this.evictionPolicy.add(key);
+      this.mainHash[key] = new HashValueNode("list", newList);
+      this.mainHash[key].evictionPointer = evictionPointer;
 
       vals.forEach((val) => {
-        const newListNode = new CorvoListNode(val);
-
-        newMainListNode.val.append(newListNode);
+        const newListNode = new CorvoTypeListNode(val);
+        newList.append(newListNode);
       });
 
-      this.memoryTracker.nodeCreation(newMainListNode);
-      return newMainListNode.val.length;
+      this.memoryTracker.listCreate(key, newList);
+      return newList.length;
     }
   }
 

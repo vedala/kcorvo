@@ -19,26 +19,37 @@ class MemoryTracker {
     this.memoryUsed += memory;
   }
 
-  calcHashValueNodeSize(key, value) {
+  calcHashValueNodeSize(key, value, type) {
     // 3 references
-    // "string" literal for type
+    // "string", "list" literal for type
     // value
     const refBytes = REFERENCE_SIZE_BYTES * 3;
-    const typeBytes = STRING_ONE_CHAR_BYTES * "string".length;
-    const valBytes = STRING_ONE_CHAR_BYTES * value.length;
+    const typeBytes = STRING_ONE_CHAR_BYTES * type.length;
+    let valBytes;
+    if (type === "string") {
+      valBytes = STRING_ONE_CHAR_BYTES * value.length;
+    } else {
+      valBytes = REFERENCE_SIZE_BYTES;
+    }
+
     return refBytes + typeBytes + valBytes;
   }
 
   stringCreate(key, value) {
     // main hash key, pointer to hash value node
     // hash value node
-    const memory = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, value);
+    const type = "string";
+    const memory = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, value, type);
     this.memoryUsed += memory;
   }
 
   stringUpdate(oldVal, newVal) {
     this.memoryUsed -= oldVal.length * STRING_ONE_CHAR_BYTES;
     this.memoryUsed += newVal.length * STRING_ONE_CHAR_BYTES;
+  }
+
+  listCreate(key, list) {
+    this.memoryUsed += this.calculateStoreItemSize(key, list, "list");
   }
 
   listItemInsert(val) {
@@ -115,7 +126,6 @@ class MemoryTracker {
   calculateListSize(list) {
     let total = 0;
     total += REFERENCE_SIZE_BYTES * 3;
-    total += 8;
     let currentNode = list.head;
     while(currentNode) {
       total = total + this.calculateListNodeSize(currentNode.val);
@@ -124,49 +134,14 @@ class MemoryTracker {
     return total;
   }
 
-  calculateHashSize(hash) {
-    let total = 0;
-    Object.keys(hash).forEach((key) => {
-      total += REFERENCE_SIZE_BYTES;
-      total += key.length * STRING_ONE_CHAR_BYTES;
-      if (hash[key].constructor === String) {
-        total += hash[key].length * STRING_ONE_CHAR_BYTES;
-      } else if (hash[key].constructor === Number) {
-        total += NUMBER_BYTES;
-      }
-    });
-
-    return total;
-  }
-
-  calculateSortedSetSize(sortedSet) {
-    let total = 3 * REFERENCE_SIZE_BYTES;
-
-    // add the size of the hash AND the score/member pair for each skipList node
-    total += this.calculateHashSize(sortedSet.hash);
-    // add shallow size of skipList nodes to total
-    total += sortedSet.skipList.memoryUsed;
-
-    return total;
-  }
-
-  calculateSetSize(set) {
-    let total = 3 * REFERENCE_SIZE_BYTES;
-
-    total += this.calculateHashSize(set.memberHash);
-    total += this.calculateHashSize(set.indexHash);
-
-    return total;
-  }
-
   calculateStoreItemSize(key, val, type) {
     let returnVal;
     switch(type) {
       case "list":
-        returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateListSize(val);
+        returnVal = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, val, type) + this.calculateListSize(val);
         break;
       case "string":
-        returnVal = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, val);
+        returnVal = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, val, type);
         break;
       case "hash":
         returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateHashSize(val);

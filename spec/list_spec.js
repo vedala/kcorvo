@@ -1,26 +1,26 @@
 import Store from "../store.js";
-import CorvoLinkedList from "../corvo_linked_list.js";
-import CorvoListNode from "../data_types/corvo_list_node.js";
+import CorvoTypeList from "../data_types/corvo_type_list.js";
+import CorvoTypeListNode from "../data_types/corvo_type_list_node.js";
 import MemoryTracker from "../memory_tracker";
 
 describe("CorvoListNode", () => {
   it("exists as a class", () => {
-    let testNode = new CorvoListNode();
-    expect(testNode.constructor).toBe(CorvoListNode);
+    let testNode = new CorvoTypeListNode();
+    expect(testNode.constructor).toBe(CorvoTypeListNode);
   });
 
   it("takes val argument", () => {
     const val = "My value";
     const key = "key";
-    const testNode = new CorvoListNode(val);
+    const testNode = new CorvoTypeListNode(val);
     expect(testNode.val).toBe(val);
   });
 
   it("takes all constructor arguments", () => {
     const val = "My value";
-    const preceedingNode = new CorvoListNode(null, null);
-    const succeedingNode = new CorvoListNode(null, null);
-    const testNode = new CorvoListNode(val, preceedingNode, succeedingNode);
+    const preceedingNode = new CorvoTypeListNode(null, null);
+    const succeedingNode = new CorvoTypeListNode(null, null);
+    const testNode = new CorvoTypeListNode(val, preceedingNode, succeedingNode);
     expect(testNode.val).toBe(val);
     expect(testNode.nextNode).toBe(succeedingNode);
     expect(testNode.prevNode).toBe(preceedingNode);
@@ -28,7 +28,7 @@ describe("CorvoListNode", () => {
 
   it("has null default constructor arguments", () => {
     const val = "My value";
-    const testNode = new CorvoListNode(val);
+    const testNode = new CorvoTypeListNode(val);
     expect(testNode.nextNode).toBe(null);
     expect(testNode.prevNode).toBe(null);
   });
@@ -36,18 +36,8 @@ describe("CorvoListNode", () => {
 
 
 describe("Store list", () => {
-  // it("uses createList method to create a new list", () => {
-  //   const testStore = new Store();
-  //   const newList =
-  //
-  //   const returnVal = testStore.createListNode(key);
-  //   expect(returnVal.constructor).toBe(CorvoNode);
-  //
-  //   expect(testStore.mainHash[key].val).toBe(value);
-  //   expect(testStore.mainList.head.val).toBe(value);
-  //   expect(testStore.mainList.tail.val).toBe(value);
-  //   expect(returnVal).toBe("OK");
-  // });
+  const REFERENCE_SIZE_BYTES = 8;
+  const STRING_ONE_CHAR_BYTES = 2;
 
   it("uses lpush to add item to end of list", () => {
     const testStore = new Store();
@@ -57,8 +47,6 @@ describe("Store list", () => {
 
     expect(testStore.mainHash[key].type).toBe("list");
     expect(testStore.mainHash[key].val.tail.val).toBe(val);
-    expect(testStore.mainList.head.val.head.val).toBe(val);
-    expect(testStore.memoryTracker.memoryUsed).toBe(142);
   });
 
   it("uses lpush throw error when adding item to non list", () => {
@@ -77,13 +65,10 @@ describe("Store list", () => {
     const val1 = "value1";
     const val2 = "value2";
     testStore.lpush(key, val1);
-    expect(testStore.memoryTracker.memoryUsed).toBe(144);
     testStore.lpush(key, val2);
-    expect(testStore.memoryTracker.memoryUsed).toBe(180);
-
     expect(testStore.mainHash[key].type).toBe("list");
     expect(testStore.mainHash[key].val.head.val).toBe(val2);
-    expect(testStore.mainList.head.val.tail.val).toBe(val1);
+    expect(testStore.mainHash[key].val.head.nextNode.val).toBe(val1);
   });
 
   it("uses rpush to throw error when adding item to end of non list", () => {
@@ -100,13 +85,11 @@ describe("Store list", () => {
     const val1 = "value1";
     const val2 = "value2";
     testStore.rpush(key, val1);
-    expect(testStore.memoryTracker.memoryUsed).toBe(144);
     testStore.rpush(key, val2);
-    expect(testStore.memoryTracker.memoryUsed).toBe(180);
 
     expect(testStore.mainHash[key].type).toBe("list");
     expect(testStore.mainHash[key].val.head.val).toBe(val1);
-    expect(testStore.mainList.head.val.tail.val).toBe(val2);
+    expect(testStore.mainHash[key].val.head.nextNode.val).toBe(val2);
   });
 
   it("uses rpush to add two items to the list in one invocation", () => {
@@ -115,11 +98,9 @@ describe("Store list", () => {
     const val1 = "value1";
     const val2 = "value2";
     testStore.rpush(key, val1, val2);
-    expect(testStore.memoryTracker.memoryUsed).toBe(180);
-
     expect(testStore.mainHash[key].type).toBe("list");
     expect(testStore.mainHash[key].val.head.val).toBe(val1);
-    expect(testStore.mainList.head.val.tail.val).toBe(val2);
+    expect(testStore.mainHash[key].val.head.nextNode.val).toBe(val2);
   });
 
   it("uses lpop to pop the leftmost node and return the value", () => {

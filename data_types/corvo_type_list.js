@@ -1,6 +1,6 @@
-import CorvoListNode from './data_types/corvo_list_node.js';
+import CorvoTypeListNode from './corvo_type_list_node.js';
 
-class CorvoLinkedList {
+class CorvoTypeList {
   constructor(inputNode=null) {
     this.head = inputNode;
     this.tail = inputNode;
@@ -125,4 +125,4 @@ class CorvoLinkedList {
   }
 }
 
-export default CorvoLinkedList;
+export default CorvoTypeList;

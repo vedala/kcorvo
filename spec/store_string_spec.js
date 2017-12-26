@@ -1,10 +1,8 @@
 import Store from "../store.js";
-import CorvoLinkedList from "../corvo_linked_list.js";
-import CorvoNode from "../corvo_node.js";
+import CorvoTypeListNode from "../data_types/corvo_type_list_node.js";
 import MemoryTracker from "../memory_tracker";
 import HashValueNode from "../hash_value_node.js";
 import CorvoLruEviction from '../corvo_lru_eviction.js';
-import CorvoListNode from '../data_types/corvo_list_node.js';
 
 const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
 const DEFAULT_EVICTION_POLICY = "lru";
@@ -51,10 +49,7 @@ describe("corvo node", () => {
     const val2 = '2';
     const strValue1 = "this-is-the-value1";
 
-    const listNode = new CorvoListNode(val1);
-    testStore.mainHash[key] = new HashValueNode("list", listNode);
-    testStore.evictionPolicy.policyImplementation.mainList.append(new CorvoNode(key, listNode, "list"))
-
+    testStore.lpush(key, val1);
     testStore.setString(key, strValue1);
     expect(testStore.getString(key)).toBe(strValue1);
     expect(testStore.mainList.head.type).toBe("string");
