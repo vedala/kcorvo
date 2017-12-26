@@ -1,27 +1,27 @@
 import Store from "../store.js";
-import CorvoLinkedList from "../corvo_linked_list.js";
-import CorvoNode from "../corvo_node.js";
+import CorvoTypeList from "../data_types/corvo_type_list.js";
+import CorvoTypeListNode from "../data_types/corvo_type_list_node.js";
 import MemoryTracker from "../memory_tracker";
 
 describe("corvo node", () => {
   it("exists as a class", () => {
-    let testNode = new CorvoNode();
-    expect(testNode.constructor).toBe(CorvoNode);
+    let testNode = new CorvoTypeListNode();
+    expect(testNode.constructor).toBe(CorvoTypeListNode);
   });
 
   it("takes val argument", () => {
     const val = "My value";
     const key = "key";
-    const testNode = new CorvoNode(key, val);
+    const testNode = new CorvoTypeListNode(val);
     expect(testNode.val).toBe(val);
   });
 
   it("takes all constructor arguments", () => {
     const val = "My value";
     const key = "key";
-    const preceedingNode = new CorvoNode(null, null);
-    const succeedingNode = new CorvoNode(null, null);
-    const testNode = new CorvoNode(key, val, "string", preceedingNode, succeedingNode);
+    const preceedingNode = new CorvoTypeListNode(null, null);
+    const succeedingNode = new CorvoTypeListNode(null, null);
+    const testNode = new CorvoTypeListNode(val, preceedingNode, succeedingNode);
     expect(testNode.val).toBe(val);
     expect(testNode.nextNode).toBe(succeedingNode);
     expect(testNode.prevNode).toBe(preceedingNode);
@@ -30,7 +30,7 @@ describe("corvo node", () => {
   it("has null default constructor arguments", () => {
     const val = "My value";
     const key = "key";
-    const testNode = new CorvoNode(key, val);
+    const testNode = new CorvoTypeListNode(val);
     expect(testNode.nextNode).toBe(null);
     expect(testNode.prevNode).toBe(null);
   });
@@ -38,12 +38,12 @@ describe("corvo node", () => {
 
 describe("corvo linked list", () => {
   it("exists as a class", () => {
-    let testList = new CorvoLinkedList();
-    expect(testList.constructor).toBe(CorvoLinkedList);
+    let testList = new CorvoTypeList();
+    expect(testList.constructor).toBe(CorvoTypeList);
   });
 
   it("new with no argument creates an empty linked list", () => {
-    const testList = new CorvoLinkedList();
+    const testList = new CorvoTypeList();
     expect(testList.head).toBe(null);
     expect(testList.tail).toBe(null);
   });
@@ -54,9 +54,9 @@ describe("corvo linked list", () => {
     const value1 = 100;
     const value2 = 200;
 
-    const newNode = new CorvoNode(key1, value1);
-    const testList = new CorvoLinkedList(newNode);
-    const newNode2 = new CorvoNode(key2, value2);
+    const newNode = new CorvoTypeListNode(key1, value1);
+    const testList = new CorvoTypeList(newNode);
+    const newNode2 = new CorvoTypeListNode(key2, value2);
     testList.append(newNode2);
     const head = testList.head;
     expect(head.nextNode).toBe(newNode2);
@@ -69,9 +69,9 @@ describe("corvo linked list", () => {
     const value1 = 100;
     const value2 = 200;
 
-    const newNode = new CorvoNode(key1, value1);
-    const testList = new CorvoLinkedList(newNode);
-    const newNode2 = new CorvoNode(key2, value2);
+    const newNode = new CorvoTypeListNode(key1, value1);
+    const testList = new CorvoTypeList(newNode);
+    const newNode2 = new CorvoTypeListNode(key2, value2);
     testList.prepend(newNode2);
     const head = testList.head;
     expect(head).toBe(newNode2);
@@ -84,12 +84,12 @@ describe("corvo linked list", () => {
     const value1 = 100;
     const value2 = 200;
 
-    const startNode = new CorvoNode(key1, value1);
-    const testList = new CorvoLinkedList(startNode);
-    const endNode = new CorvoNode(key2, value2);
+    const startNode = new CorvoTypeListNode(key1, value1);
+    const testList = new CorvoTypeList(startNode);
+    const endNode = new CorvoTypeListNode(key2, value2);
 
     for (var i = 0; i < 50; i++) {
-      const intermediateNode = new CorvoNode('k' + i, 50);
+      const intermediateNode = new CorvoTypeListNode('k' + i, 50);
       testList.append(intermediateNode);
     }
 
@@ -105,12 +105,12 @@ describe("corvo linked list", () => {
     const value1 = 100;
     const value2 = 200;
 
-    const startNode = new CorvoNode(key1, value1);
-    const testList = new CorvoLinkedList(startNode);
-    const endNode = new CorvoNode(key2, value2);
+    const startNode = new CorvoTypeListNode(key1, value1);
+    const testList = new CorvoTypeList(startNode);
+    const endNode = new CorvoTypeListNode(key2, value2);
 
     for (var i = 0; i < 50; i++) {
-      const intermediateNode = new CorvoNode('k' + i, 50);
+      const intermediateNode = new CorvoTypeListNode('k' + i, 50);
       testList.prepend(intermediateNode);
     }
 
@@ -126,9 +126,9 @@ describe("corvo linked list", () => {
     const value1 = 100;
     const value2 = 200;
 
-    const startNode = new CorvoNode(key1, value1);
-    const testList = new CorvoLinkedList(startNode);
-    const endNode = new CorvoNode(key2, value2);
+    const startNode = new CorvoTypeListNode(key1, value1);
+    const testList = new CorvoTypeList(startNode);
+    const endNode = new CorvoTypeListNode(key2, value2);
     testList.append(endNode);
 
     const result = testList.lpop();
@@ -143,9 +143,9 @@ describe("corvo linked list", () => {
     const value1 = 100;
     const value2 = 200;
 
-    const startNode = new CorvoNode(key1, value1);
-    const testList = new CorvoLinkedList(startNode);
-    const endNode = new CorvoNode(key2, value2);
+    const startNode = new CorvoTypeListNode(key1, value1);
+    const testList = new CorvoTypeList(startNode);
+    const endNode = new CorvoTypeListNode(key2, value2);
     testList.append(endNode);
 
     const result = testList.rpop();
@@ -161,12 +161,9 @@ describe("store", () => {
     expect(testStore.constructor).toBe(Store);
   });
 
-  it("has mainHash and mainLinkedList initialized", () => {
+  it("has mainHash initialized", () => {
     const testStore = new Store();
     expect(Object.keys(testStore.mainHash).length).toBe(0);
-    expect(testStore.mainList.constructor).toBe(CorvoLinkedList);
-    expect(testStore.mainList.head).toBe(null);
-    expect(testStore.mainList.tail).toBe(null);
   });
 
   it("has a new instance of memory tracker", () => {

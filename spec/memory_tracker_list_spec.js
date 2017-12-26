@@ -76,4 +76,24 @@ describe("MemoryTracker", () => {
     expect(testStore.memoryTracker.memoryUsed).toBe(180);
   });
 
+  it("lset sets value of field to new value and returns OK", () => {
+    const testStore = new Store();
+    const key1 = "key-1";
+    const val1 = "value-1";
+    const val2 = "value-2";
+    const val3 = "value-3";
+    const updatedVal = "new-value";
+    const idx = 1;
+
+    testStore.rpush(key1, val1);
+    testStore.rpush(key1, val2);
+    testStore.rpush(key1, val3);
+
+    expect(testStore.memoryTracker.memoryUsed).toBe(222);
+    const returnVal = testStore.lset(key1, idx, updatedVal);
+    expect(returnVal).toBe("OK");
+    expect(testStore.lindex(key1, idx)).toBe(updatedVal);
+    expect(testStore.memoryTracker.memoryUsed).toBe(226);
+  });
+
 });

@@ -1,4 +1,4 @@
-class CorvoListNode {
+class CorvoTypeListNode {
   constructor(val, prevNode=null, nextNode=null) {
     this.val = val;
     this._prevNode = prevNode;
@@ -22,4 +22,4 @@ class CorvoListNode {
   }
 }
 
-export default CorvoListNode;
+export default CorvoTypeListNode;

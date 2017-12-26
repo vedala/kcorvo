@@ -77,7 +77,7 @@ class CorvoTypeList {
     let currentNode = this.head;
     while(currentNode) {
       if (currentNode.val === pivot) {
-        const newNode = new CorvoListNode(newVal);
+        const newNode = new CorvoTypeListNode(newVal);
         if (currentNode === this.head) {
           this.prepend(newNode);
         } else {
@@ -104,7 +104,7 @@ class CorvoTypeList {
     let currentNode = this.head;
     while(currentNode) {
       if (currentNode.val === pivot) {
-        const newNode = new CorvoListNode(newVal);
+        const newNode = new CorvoTypeListNode(newVal);
         if (currentNode === this.tail) {
           this.append(newNode);
         } else {
