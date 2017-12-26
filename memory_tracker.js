@@ -24,9 +24,9 @@ class MemoryTracker {
     // "string" literal for type
     // value
     const refBytes = REFERENCE_SIZE_BYTES * 3;
-    const keyBytes = STRING_ONE_CHAR_BYTES * key.length;
+    const typeBytes = STRING_ONE_CHAR_BYTES * "string".length;
     const valBytes = STRING_ONE_CHAR_BYTES * value.length;
-    return refBytes + keyBytes + valBytes;
+    return refBytes + typeBytes + valBytes;
   }
 
   stringCreate(key, value) {
