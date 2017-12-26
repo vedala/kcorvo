@@ -27,22 +27,6 @@ const WRITE_COMMANDS = {
   LPOP: true, // write when not nil X
   RPOP: true, // write when not nil X
   LSET: true, // write when returning OK
-  HSET: true, // write for 1 or 0
-  HMSET: true, // write when returning OK
-  HDEL: true, // write for any integer value
-  HSETNX: true, // write for 1 or 0
-  HINCRBY: true, // write for any float
-  ZINTERSTORE: true, // write for any integer value
-  ZUNIONSTORE: true, // write for any integer value
-  ZADD: true, // write for integer or bulk string reply
-  ZREM: true, // write for any integer value
-  ZINCRBY: true, // bulk string reply
-  SADD: true,
-  SPOP: true,
-  SREM: true,
-  SDIFFSTORE: true,
-  SINTERSTORE: true,
-  SUNIONSTORE: true,
 };
 const DEF_OPTIONS = {
   maxMemory: DEFAULT_MAX_MEMORY,
@@ -75,37 +59,6 @@ class CorvoServer {
       'LPOP': this.store.lpop,
       'RPOP': this.store.rpop,
       'LSET': this.store.lset,
-      'HSET': this.store.hset,
-      'HVALS': this.store.hvals,
-      'HSTRLEN': this.store.hstrlen,
-      'HKEYS': this.store.hkeys,
-      'HMSET': this.store.hmset,
-      'HDEL': this.store.hdel,
-      'HGET': this.store.hget,
-      'HGETALL': this.store.hGetAll,
-      'HLEN': this.store.hlen,
-      'HSETNX': this.store.hsetnx,
-      'HMGET': this.store.hmget,
-      'HINCRBY': this.store.hincrby,
-      'ZINTERSTORE': this.store.zinterstore,
-      'ZUNIONSTORE': this.store.zunionstore,
-      'ZADD': this.store.zadd,
-      'ZREM': this.store.zrem,
-      'ZCARD': this.store.zcard,
-      'ZINCRBY': this.store.zincrby,
-      'ZSCORE': this.store.zscore,
-      'SADD': this.store.sadd,
-      'SCARD': this.store.scard,
-      'SDIFF': this.store.sdiff,
-      'SUNION': this.store.sunion,
-      'SINTER': this.store.sinter,
-      'SISMEMBER': this.store.sismember,
-      'SMEMBERS': this.store.smembers,
-      'SPOP': this.store.spop,
-      'SREM': this.store.srem,
-      'SDIFFSTORE': this.store.sdiffstore,
-      'SINTERSTORE': this.store.sinterstore,
-      'SUNIONSTORE': this.store.sunionstore,
     };
     this.aofWritePath = options["aofWritePath"] ? options.aofWritePath : DEF_OPTIONS.aofWritePath;
     this.persist = options["aofPersistence"] ? options.aofPersistence : DEF_OPTIONS.aofPersistence;

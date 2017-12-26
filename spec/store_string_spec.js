@@ -2,8 +2,6 @@ import Store from "../store.js";
 import CorvoLinkedList from "../corvo_linked_list.js";
 import CorvoNode from "../corvo_node.js";
 import MemoryTracker from "../memory_tracker";
-import CorvoSkipList from "../corvo_skiplist.js";
-import CorvoSkipListNode from "../corvo_skiplist_node.js";
 import HashValueNode from "../hash_value_node.js";
 import CorvoLruEviction from '../corvo_lru_eviction.js';
 import CorvoListNode from '../data_types/corvo_list_node.js';
