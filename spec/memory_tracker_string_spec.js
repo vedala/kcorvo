@@ -7,6 +7,7 @@ const DEFAULT_EVICTION_POLICY = "lru";
 describe("MemoryTracker", () => {
   const REFERENCE_SIZE_BYTES = 8;
   const STRING_ONE_CHAR_BYTES = 2;
+  const NUMBER_BYTES = 8;
 
   it("returns correct size for calculateStoreItemSize", () => {
     const testMemoryTracker = new MemoryTracker();
@@ -19,6 +20,7 @@ describe("MemoryTracker", () => {
     expectedSize += STRING_ONE_CHAR_BYTES * "string".length;
     expectedSize += STRING_ONE_CHAR_BYTES * val.length;
     expectedSize += REFERENCE_SIZE_BYTES * 3;
+
     expect(testMemoryTracker.calculateStoreItemSize(key, val, type)).toBe(expectedSize);
   });
 
@@ -216,7 +218,13 @@ describe("MemoryTracker", () => {
 
     expect(lookupResult).toBe(null);
     expect(returnVal).toBe(1);
-    expect(testStore.memoryTracker.memoryUsed).toBe(0);
+
+    let expectedSize = 0;
+    // lru linked list
+    expectedSize += REFERENCE_SIZE_BYTES * 3;
+    expectedSize += NUMBER_BYTES * 1;
+
+    expect(testStore.memoryTracker.memoryUsed).toBe(expectedSize);
   });
 
   it("uses del to delete multiple keys and values and expect return value to be equal to number of keys deleted", () => {

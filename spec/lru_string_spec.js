@@ -113,7 +113,7 @@ describe("lru", () => {
   });
 
   it("uses lruCheckAndEvictToMaxMemory to bring total store memory below threshold", () => {
-    const testStore = new Store(1085, DEFAULT_EVICTION_POLICY);
+    const testStore = new Store(1475, DEFAULT_EVICTION_POLICY);
     for (var i = 0; i < 10; i++) {
       testStore.setString("key" + i, "abcdefghijklmnopqrstuvwxyzabc" + i);
     }
