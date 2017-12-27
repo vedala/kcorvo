@@ -225,19 +225,11 @@ class Store {
       if (this.mainHash[keyB]) {
         this.del(keyB);
       }
-      const val = this.mainHash[keyA].val;
-      const newMainListNode = new CorvoNode(keyB, val, "list");
-      this.mainList.append(newMainListNode);
-      this.mainList[keyB] = newMainListNode;
-      this.memoryTracker.nodeCreation(newMainListNode);
-    } else if (keyADataType === 'hash') {
-      if (this.mainHash[keyB]) {
-      }
-      const val = this.mainHash[keyA].val;
-      const newMainHashNode = new CorvoNode(keyB, val, "hash");
-      this.mainList.append(newMainHashNode);
-      this.mainList[keyB] = newMainHashNode;
-      this.memoryTracker.nodeCreation(newMainHashNode);
+      const hashValueNode = this.mainHash[keyA];
+      const evictionPointer = this.evictionPolicy.add(keyB);
+      hashValueNode.evictionPtr = evictionPointer;
+      this.mainList[keyB] = hashValueNode;
+      this.memoryTracker.listCreate(keyB, hashValueNode.val);
     }
 
     this.del(keyA);
@@ -337,18 +329,18 @@ class Store {
     }
   }
 
-  createMainNodeForListType(key) {
-    const newList = new CorvoLinkedList();
-    const newNode = new CorvoNode(key, newList, "list", null, null);
-    return newNode;
-  }
-
   lpop(key) {
     if (this.mainHash[key]) {
       this.touch(key);
       const list = this.mainHash[key].val;
 
-      return list.length ? list.lpop().val : null;
+      if (list.length > 0) {
+        const poppedValue = list.lpop().val;
+        this.memoryTracker.listItemDelete(poppedValue);
+        return poppedValue;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -359,7 +351,13 @@ class Store {
       this.touch(key);
       const list = this.mainHash[key].val;
 
-      return list.length ? list.rpop().val : null;
+      if (list.length > 0) {
+        const poppedValue = list.rpop().val;
+        this.memoryTracker.listItemDelete(poppedValue);
+        return poppedValue;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }

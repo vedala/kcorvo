@@ -10,15 +10,6 @@ class MemoryTracker {
     this.memoryUsed = 0;
   }
 
-  nodeCreation(node) {
-    const key = node.key;
-    const val = node.val;
-    const type = node.type;
-    const memory = this.calculateStoreItemSize(key, val, type);
-
-    this.memoryUsed += memory;
-  }
-
   calcHashValueNodeSize(key, value, type) {
     // 3 references
     // "string", "list" literal for type
@@ -54,16 +45,12 @@ class MemoryTracker {
     this.memoryUsed += this.calculateListNodeSize(val);
   }
 
-  listItemDelete(listNode) {
-    this.memoryUsed -= this.calculateListNodeSize(listNode.val);
+  listItemDelete(val) {
+    this.memoryUsed -= this.calculateListNodeSize(val);
   }
 
   listItemUpdate(oldVal, newVal) {
     this.stringUpdate(oldVal, newVal);
-  }
-
-  listDelete(key, val) {
-    this.memoryUsed -= this.calculateStoreItemSize(key, val, "list");
   }
 
   hashItemInsert(field, val) {

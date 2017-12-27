@@ -17,7 +17,7 @@ describe("MemoryTracker", () => {
     const val = 'my value';
     const testListNode = new CorvoTypeListNode(val);
 
-    testTracker.listItemDelete(testListNode);
+    testTracker.listItemDelete(val);
     expect(testTracker.memoryUsed).toBe(40);
   });
 
