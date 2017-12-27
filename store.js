@@ -268,7 +268,7 @@ class Store {
       if (node !== undefined) {
         const val = node.val;
         const type = node.type;
-        const evictionPtr = node.evictionPointer;
+        const evictionPtr = node.evictionPtr;
         this.memoryTracker.deleteStoreItem(node);
         delete this.mainHash[key];
         this.evictionPolicy.remove(evictionPtr, val, type);
@@ -296,7 +296,7 @@ class Store {
       const newList = new CorvoTypeList();
       const evictionPointer = this.evictionPolicy.add(key);
       this.mainHash[key] = new HashValueNode("list", newList);
-      this.mainHash[key].evictionPointer = evictionPointer;
+      this.mainHash[key].evictionPtr = evictionPointer;
 
       vals.forEach((val) => {
         const newListNode = new CorvoTypeListNode(val) 
@@ -325,7 +325,7 @@ class Store {
       const newList = new CorvoTypeList();
       const evictionPointer = this.evictionPolicy.add(key);
       this.mainHash[key] = new HashValueNode("list", newList);
-      this.mainHash[key].evictionPointer = evictionPointer;
+      this.mainHash[key].evictionPtr = evictionPointer;
 
       vals.forEach((val) => {
         const newListNode = new CorvoTypeListNode(val);
