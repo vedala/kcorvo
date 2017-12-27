@@ -269,7 +269,7 @@ class Store {
         const val = node.val;
         const type = node.type;
         const evictionPtr = node.evictionPtr;
-        this.memoryTracker.deleteStoreItem(node);
+        this.memoryTracker.deleteStoreItem(key, val, type);
         delete this.mainHash[key];
         this.evictionPolicy.remove(evictionPtr, val, type);
         numDeleted += 1;

@@ -1,6 +1,9 @@
 import Store from "../store.js";
 import MemoryTracker from "../memory_tracker";
 
+const DEFAULT_MAX_MEMORY = 104857600; // equals 100MB
+const DEFAULT_EVICTION_POLICY = "lru";
+
 describe("MemoryTracker", () => {
   const REFERENCE_SIZE_BYTES = 8;
   const STRING_ONE_CHAR_BYTES = 2;

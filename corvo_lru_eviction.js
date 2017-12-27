@@ -20,12 +20,13 @@ class CorvoLruEviction {
   }
 
   add(key) {
+    this.memoryTracker.addLRUItem(key);
     return this.mainList.add(key);
   }
 
   remove(node, val, type) {
     const key = node.key;
-    this.memoryTracker.deleteStoreItem(key, val, type);
+    this.memoryTracker.deleteLRUItem(key);
     this.mainList.remove(node);
   }
 

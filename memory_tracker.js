@@ -102,6 +102,20 @@ class MemoryTracker {
     this.memoryUsed -= this.calculateStoreItemSize(key, val, type);
   }
 
+  addLRUItem(key) {
+    this.memoryUsed += this.calculateLRUNodeSize(key);
+  }
+
+  deleteLRUItem(key) {
+    this.memoryUsed -= this.calculateLRUNodeSize(key);
+  }
+
+  calculateLRUNodeSize(key) {
+    const refBytes = REFERENCE_SIZE_BYTES * 3;
+    const keyBytes = STRING_ONE_CHAR_BYTES * key.length;
+    return refBytes + keyBytes;
+  }
+
   calculateMainHashKeySize(key) {
     const keyBytes = STRING_ONE_CHAR_BYTES * key.length;
     return keyBytes + REFERENCE_SIZE_BYTES;
