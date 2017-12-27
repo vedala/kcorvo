@@ -4,6 +4,7 @@ class CorvoLruEviction {
   constructor(memoryTracker) {
     this.memoryTracker = memoryTracker;
     this.mainList = new CorvoLruLinkedList();
+    this.memoryTracker.createLRUList();
   }
 
   lruEvict(mainHash) {

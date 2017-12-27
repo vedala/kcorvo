@@ -25,11 +25,9 @@ class MemoryTracker {
     // value
     const refBytes = REFERENCE_SIZE_BYTES * 3;
     const typeBytes = STRING_ONE_CHAR_BYTES * type.length;
-    let valBytes;
+    let valBytes = 0;
     if (type === "string") {
       valBytes = STRING_ONE_CHAR_BYTES * value.length;
-    } else {
-      valBytes = REFERENCE_SIZE_BYTES;
     }
 
     return refBytes + typeBytes + valBytes;
@@ -102,12 +100,22 @@ class MemoryTracker {
     this.memoryUsed -= this.calculateStoreItemSize(key, val, type);
   }
 
+  createLRUList() {
+    this.memoryUsed += this.calculateLRUListSize();
+  }
+
   addLRUItem(key) {
     this.memoryUsed += this.calculateLRUNodeSize(key);
   }
 
   deleteLRUItem(key) {
     this.memoryUsed -= this.calculateLRUNodeSize(key);
+  }
+
+  calculateLRUListSize() {
+    const refBytes = REFERENCE_SIZE_BYTES * 3;
+    const lengthBytes = NUMBER_BYTES * 1;
+    return refBytes + lengthBytes;
   }
 
   calculateLRUNodeSize(key) {
@@ -140,6 +148,7 @@ class MemoryTracker {
   calculateListSize(list) {
     let total = 0;
     total += REFERENCE_SIZE_BYTES * 3;
+    total += NUMBER_BYTES * 1;
     let currentNode = list.head;
     while(currentNode) {
       total = total + this.calculateListNodeSize(currentNode.val);
