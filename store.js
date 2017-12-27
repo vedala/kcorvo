@@ -16,7 +16,7 @@ class Store {
     const accessedHashValueNode = this.mainHash[key];
 
     if (accessedHashValueNode === undefined) {
-      this.mainHash[key] = new HashValueNode("string", value)
+      this.mainHash[key] = new HashValueNode("string", value);
       const evictionPointer = this.evictionPolicy.add(key);
       this.mainHash[key].evictionPtr = evictionPointer;
       this.memoryTracker.stringCreate(key, value);
@@ -268,7 +268,7 @@ class Store {
       if (node !== undefined) {
         const val = node.val;
         const type = node.type;
-        const evictionPtr = node.evictionPtr;
+        const evictionPtr = node.evictionPointer;
         this.memoryTracker.deleteStoreItem(node);
         delete this.mainHash[key];
         this.evictionPolicy.remove(evictionPtr, val, type);

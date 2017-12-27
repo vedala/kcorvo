@@ -14,9 +14,9 @@ class CorvoEvictionPolicy {
     }
   }
 
-  remove(key) {
+  remove(node, val, type) {
     if (this.policyImplementation) {
-      this.policyImplementation.remove(key);
+      this.policyImplementation.remove(node, val, type);
     }
   }
 

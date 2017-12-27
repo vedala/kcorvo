@@ -52,7 +52,7 @@ describe("corvo node", () => {
     testStore.lpush(key, val1);
     testStore.setString(key, strValue1);
     expect(testStore.getString(key)).toBe(strValue1);
-    expect(testStore.mainList.head.type).toBe("string");
+    expect(testStore.mainHash[key].type).toBe("string");
   });
 
   it("uses setStringX to overwrite a single key/value in store and return OK", () => {
@@ -88,7 +88,7 @@ describe("corvo node", () => {
 
     testStore.setStringX(key, strValue1);
     expect(testStore.getString(key)).toBe(strValue1);
-    expect(testStore.mainList.head.type).toBe("string");
+    expect(testStore.mainHash[key].type).toBe("string");
   });
 
   it("uses setStringNX method to create new key/value in store and return OK", () => {
@@ -124,9 +124,9 @@ describe("corvo node", () => {
     testStore.lpush(key, val1, val2);
 
     testStore.setStringNX(key, strValue1);
-    expect(testStore.mainList.head.type).toBe("list");
-    expect(testStore.mainList.head.val.head.val).toBe("2");
-    expect(testStore.mainList.head.val.head.nextNode.val).toBe("1");
+    expect(testStore.mainHash[key].type).toBe("list");
+    expect(testStore.mainHash[key].val.head.val).toBe("2");
+    expect(testStore.mainHash[key].val.head.nextNode.val).toBe("1");
   });
 
   it("uses getString method to retrieve corresponding value for a key", () => {
