@@ -53,36 +53,6 @@ class MemoryTracker {
     this.stringUpdate(oldVal, newVal);
   }
 
-  hashItemInsert(field, val) {
-    this.memoryUsed += field.length * STRING_ONE_CHAR_BYTES + val.length * STRING_ONE_CHAR_BYTES + REFERENCE_SIZE_BYTES;
-  }
-
-  hashItemUpdate(oldVal, newVal) {
-    this.stringUpdate(oldVal, newVal);
-  }
-
-  hashItemDelete(field, val) {
-    this.memoryUsed -= field.length * STRING_ONE_CHAR_BYTES + val.length * STRING_ONE_CHAR_BYTES + REFERENCE_SIZE_BYTES;
-  }
-
-  hashDelete(key, val) {
-    this.memoryUsed -= this.calculateStoreItemSize(key, val, "hash");
-  }
-
-  sortedSetElementInsert(oldVal, newVal) {
-    this.memoryUsed += (newVal - oldVal);
-  }
-
-  setAddMember(member) {
-    this.memoryUsed += 2 * REFERENCE_SIZE_BYTES;
-    this.memoryUsed += 2 * (STRING_ONE_CHAR_BYTES * member.length);
-  }
-
-  setRemoveMember(member) {
-    this.memoryUsed -= 2 * REFERENCE_SIZE_BYTES;
-    this.memoryUsed -= 2 * (STRING_ONE_CHAR_BYTES * member.length);
-  }
-
   deleteStoreItem(key, val, type) {
     this.memoryUsed -= this.calculateStoreItemSize(key, val, type);
   }
@@ -116,16 +86,6 @@ class MemoryTracker {
     return keyBytes + REFERENCE_SIZE_BYTES;
   }
 
-  calculateNodeSize(key, val, type) {
-    const total_refs = REFERENCE_SIZE_BYTES * 5;
-
-    const valueBytes = type === "string" ? STRING_ONE_CHAR_BYTES * val.length : 0;
-
-    const keyBytes = STRING_ONE_CHAR_BYTES * key.length;
-    const typeStringBytes = STRING_ONE_CHAR_BYTES * type.length;
-    return total_refs + valueBytes + keyBytes + typeStringBytes;
-  }
-
   calculateListNodeSize(val) {
     const total_refs = REFERENCE_SIZE_BYTES * 3;
     const valueBytes = STRING_ONE_CHAR_BYTES * val.length;
@@ -152,15 +112,6 @@ class MemoryTracker {
         break;
       case "string":
         returnVal = this.calculateMainHashKeySize(key) + this.calcHashValueNodeSize(key, val, type);
-        break;
-      case "hash":
-        returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateHashSize(val);
-        break;
-      case "zset":
-        returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateSortedSetSize(val);
-        break;
-      case "set":
-        returnVal = this.calculateMainHashKeySize(key) + this.calculateNodeSize(key, val, type) + this.calculateSetSize(val);
         break;
     }
     return returnVal;
